@@ -1,5 +1,7 @@
 apache2:
-  pkg.installed
+  pkg.installed:
+    - pkgs:
+      - libapache2-mod-wsgi-py3
 
 /etc/hosts:
   file.managed:
