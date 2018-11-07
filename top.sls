@@ -1,3 +1,5 @@
 base:
   '*':
     - hello
+  'slave*':
+    - apache
