@@ -3,6 +3,8 @@ Tämä on harjoittelua palvelintenhallinta-kurssille. Samalla tämä on kurssin 
 
 Tavoitteena saada lopulta flask-ympäristö asennettua palvelimelle.
 
+Muut tehtävän vastaukset https://github.com/immonju1/salt/tree/master/docs
+
 ## Käyttäjätarina
 Sovelluskehittäjänä haluan, että minulla on tuotantoa vastaava Python Flask ympäristö, jotta voin testata sovellustani oikeassa ympäristössä.
 
@@ -42,7 +44,7 @@ Salt asentaa seuraavat asiat
 ### Ohjelmien asennus
 - Wsgi testisovellus
 - Flask testisovellus, joka käyttää tietokantaa
-- Sovelluksen siirto oikeisiin projketihakemistoihin
+- Sovelluksen siirto oikeisiin projektihakemistoihin
 
 ### Testaus
 Sovellus ja asennus voidaan testata selaimella. Jos asennus on samalle koneelle niin voidaan testata URL juhawsgi.example.com

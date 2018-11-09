@@ -5,3 +5,4 @@ base:
     - flask
     - apache
     - users
+    - groups
