@@ -148,21 +148,19 @@ apache2restart:
 ```
 
 Muut tiedostot
-
-index.html
-
-Salt Hello!
-
-hosts
-
-127.0.0.1	localhost
-
-127.0.1.1	juha-HP
-
-127.0.0.1	juha.example.com
-
-juha.example.com
 ```
+index.html
+Salt Hello!
+```
+hosts
+```
+127.0.0.1	localhost
+127.0.1.1	juha-HP
+127.0.0.1	juha.example.com
+```
+```
+juha.example.com
+
 <VirtualHost *:80>
 
 ServerName juha.example.com
