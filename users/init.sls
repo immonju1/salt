@@ -1,7 +1,7 @@
 user_juhawsgi:
   user.present:
     - name: juhawsgi
-    - fullaname: Juha Immonen project user
+    - fullname: Juha Immonen project user
 
 user_mono:
   user.present:

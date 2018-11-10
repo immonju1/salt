@@ -4,6 +4,10 @@ Tässä harjoituksessa tein omia pieniä Salt kokeiluita ja vein tehdyt muutokse
 
 Tavoitteena oli itselle harjoitella sellaisia Salt tiloja, joita voin hyödyntää kurssin harjoitustyössä. Harjoitustyön aiheena minulla tulee olemaan Flask-ympäristön asentaminen Ubuntulle. Eli voin ajaa Flaskilla tehtyjä Web-ohjelmia selaimessa.
 
+Tehtävät on tehty omalla  Hewlett-Packard kotikoneella, jossa Ubuntu 18.04. Muistia 6 GB ja CPU on Intel i5 M 450 @ 2.40GHz.
+
+Master ja minion ovat samalla koneella. Saltin asennus tehty jo aiemmin http://juhaimmonen.com/index.php/2018/11/03/palvelinten-hallinta-harjoitus-2/
+
 ## asenna git
 
     $ sudo apt-get update
@@ -22,6 +26,13 @@ Ensimmäinen commit vaatii antamaan yhteystiedot ensin
 ```
 $ git config --global user.email "jmi@kolumbus.fi"
 $ git config --global user.name "Juha Immonen"
+```
+
+### git salasanan muistaminen
+
+```
+salasanan muistaminen käytön helpottamiseksi
+$ git config --global credential.helper "cache --timeout=3600"
 ```
 
 # git käyttöönotto
@@ -99,12 +110,7 @@ Already up to date.
 $ sudo git push
 ```
 
-```
-salasanan muistaminen käytön helpottamiseksi
-$ git config --global credential.helper "cache --timeout=3600"
-```
-
-Tarkistettu githubista, ja siellä näkyy viimeisin committoitu versio.
+Tarkistettu githubista, ja siellä näkyy viimeisin commitoitu versio.
 
 
 # Varsinaisen harjoitustyön totetuksen aloitus tekemällä tiloja yksi kerrallaan
@@ -152,8 +158,8 @@ Muut tiedostot
 index.html
 Salt Hello!
 ```
-hosts
 ```
+hosts
 127.0.0.1	localhost
 127.0.1.1	juha-HP
 127.0.0.1	juha.example.com
@@ -299,7 +305,7 @@ $ sudoedit init.sls
 user_juhawsgi:
   user.present:
     - name: juhawsgi
-    - fullaname: Juha Immonen project user
+    - fullname: Juha Immonen project user
 
 user_mono:
   user.present:
@@ -327,13 +333,19 @@ Warnings: 'fullaname' is an invalid keyword argument for 'user.present'. If
 ```
 Tämä varmaan tuli kun tein käyttäjän lisämääreet tilaan suoraan, pitää jatkossa tehdä muottien avulla?
 
+Edit: Tilassa oli kirjoitusvirhe fullaname -> fullname
+
 Käyttäjät luotiin kuitenkin
 ```
 juha@juha-HP:/home$ ls
 einari  juha  juhawsgi  matti  mono
 ```
 
+Tässä välissä commit, sekä push githubiin.
+
 ## Lisätään Apache tilaan mod_wsgi
+
+Asennetaan siis apache moduli libapache2-mod-wsgi-py3
 
 Tila muutoksen jälkeen
 ```
@@ -375,7 +387,7 @@ apache2restart:
 ```
 
 
-## testiajo uudelle Aapche tilalle
+## testiajo uudelle Apache tilalle
 ```
 $ sudo salt '*' state.highstate
 ```
@@ -408,7 +420,7 @@ $ apache2ctl -M|grep -i wsgi
 ```
 Tulostuu:  wsgi_module (shared)
 
-Tässä välissä commit, sekä vienti git hubiin.
+Tässä välissä commit, sekä push githubiin.
 
 
 ## lisätään Python ja Flask
@@ -469,7 +481,7 @@ juhawsgi:
       - mono
 ```
 
-Lisätään top.sls tilaan myös groups.
+Lisätään top.sls tilaan myös tila groups ajettavaksi.
 
 ### Testataan
 
@@ -505,9 +517,13 @@ Katsotaan muodostuiko ryhmä
 $ cat /etc/group |grep juhawsgi
 juhawsgi:x:1002:mono
 ```
+
+Tila ok, viedään git:iin muutokset.
+
+
 ## Teknisen projektikäyttäjän oikeudet ja hakemistojen luonti
 
-Määritellään käyttäjän oikeudet siten, että tämän käyttäjän alle voivat muut käyttäjät tehdä Python-ohjelmia. Määritellään myös, että juhawsgi-käyttäjän kotihakemistossa olevaan alihakemistoon pääsee ryhmän jäsenet
+Määritellään käyttäjän oikeudet siten, että tämän käyttäjän alle voivat muut käyttäjät tehdä Python-ohjelmia. Määritellään myös, että juhawsgi-käyttäjän kotihakemistossa olevaan alihakemistoon public_wsi pääsee ryhmän jäsenet
 
 Manuaaliset komennot ovat
 ```
@@ -526,7 +542,7 @@ Lisätään /srv/salt/users/init.sls
     - mode: 711
 ```
 
-Ajetaan tila tässä vaiheessa ja testataan, että hakemisto muodostui ok. 
+Ajetaan tila tässä vaiheessa ja testataan, että hakemisto muodostui ok. Tarkistettu ja se muodostui ok.
 
 Jatketaan tilan tekemistä.
 
@@ -679,6 +695,8 @@ base:
 $ sudo salt '*' state.highstate
 ```
 
+Tila ok, viedään git:iin muutokset.
+
 ## Testisovellus
 
 Luodaan WSGI-ohjelma
@@ -687,7 +705,7 @@ $ nano /home/juhawsgi/public_wsgi/juha.wsgi
 
 def application(env, startResponse):
         startResponse("200 OK", [("Content-type", "text/plain")])
-        return [b"See you at TeroKarvinen.com\n"]
+        return [b"See you at juhawsgi.example..com\n"]
 ```
 
 
@@ -708,7 +726,7 @@ See you at juhawsgi.example.com
 ```
 Tehdään commit ja viedään git:iin
 
-# Tehdään myöhemmin:
+# Tehdään myöhemmin
 
 Lukitaan käyttäjätunnus, koska se on ryhmätunnus, jolla ei kirjauduta sisään.
 ```
@@ -718,11 +736,13 @@ Korjataan käyttäjäryhmä kun luodaan tiedostoja seuraavasti mono -> juhawsgi,
 
 /home/mono/public_wsgi
 
-Tehdään tila,. joka kopioi testiohjelmat (wsgi ja python) ohjelmat oikeaan hakemistoon.
+Tehdään tila, joka kopioi testiohjelmat (wsgi ja python) oikeaan hakemistoon.
+
+Tehdään tila, joka asentaa PostgreSQL:n ja luo kantatunnuksen.
 
 Sen jälkeen Flask-ohjelman tekeminen, projektihakemiston tekeminen ja lopullinen testaus.
 
-Tämän jälkeen puhtaalla Sal tilalla tehtävä sennus on valmis, sitä voidaan lähteä parantamaan Pilareilla ja muoteilla.
+Tämän jälkeen puhtaalla Salt tilalla tehtävä asennus on valmis, sitä voidaan lähteä parantamaan Pilareilla ja muoteilla.
 
 
 
