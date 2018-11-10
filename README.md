@@ -16,35 +16,35 @@ Salt asentaa seuraavat asiat
 
 - Käyttäjätunnus kehittäjälle
 - Tekninen käyttäjä projektille, jolla ei voi kirjautua sisään
-- Ryhmän luonti tekniselle käyttäjälle
-- Luodaan projektihakemistot ja käyttöoikeudet kuntoon
-- Käyttöoikeudet (rwx) muille käyttäjille projektihakemistoon, liitetään aiemmin luotuun ryhmään
+- Unix käyttäjäyhmän luonti tekniselle käyttäjälle, kehittäjien liittäminen tähän ryhmään
+- Luodaan projektihakemistot ja käyttöoikeudet kuntoon hakemistoihin
+- Käyttöoikeudet (rwx) muille käyttäjille projektihakemistoon
 
 ### Apache ja konfiguroinnit
 
 - Apache2 asennus
-- Virtual name based host
-- Apache2 virtual name base host wsgi:lle
-- Apache restart tapahtuu automaattiseti kun koodia päivitetään?
-- Apache2 oletusetusivu on muutettu
+- Virtual name based host tavalliselle sivustolle
+- Apache2 virtual name base host wsgi ohjelmaa varten
+- Apache2 oletusetusivu muutetaan
 - Kotisivut on sallittu käyttäjien kotihakemistoista
 - mod_wsgi Pythoon Flaskin ajoa varten
+- Flask/wsgi ohjelmia voi muuttaa ja ajaa ilman sudo-oikeuksia
 
 ### Python ja Flask
 
 - Python
 - Flask
-- Curl
+- Curl testaamista varten
 
 ### Tietokanta
   
 - PostgreSQL
-- Kantatunnus sovellukselle
+- Kantatunnuksen luonti
 
 ### Ohjelmien asennus
 - Wsgi testisovellus
 - Flask testisovellus, joka käyttää tietokantaa
-- Sovelluksen siirto oikeisiin projektihakemistoihin
+- Sovellusten siirto oikeisiin projektihakemistoihin
 
 ### Testaus
 Sovellus ja asennus voidaan testata selaimella. Jos asennus on samalle koneelle niin voidaan testata URL juhawsgi.example.com

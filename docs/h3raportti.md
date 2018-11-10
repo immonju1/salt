@@ -523,7 +523,9 @@ Tila ok, viedään git:iin muutokset.
 
 ## Teknisen projektikäyttäjän oikeudet ja hakemistojen luonti
 
-Määritellään käyttäjän oikeudet siten, että tämän käyttäjän alle voivat muut käyttäjät tehdä Python-ohjelmia. Määritellään myös, että juhawsgi-käyttäjän kotihakemistossa olevaan alihakemistoon public_wsi pääsee ryhmän jäsenet
+Määritellään käyttäjän kotihakemiston oikeudet.
+
+Määritellään, että juhawsgi-käyttäjän kotihakemistossa olevaan alihakemistoon public_wsgi pääsevät ryhmän jäsenet ja he voivat muokata siellä tiedostoja.
 
 Manuaaliset komennot ovat
 ```
@@ -732,9 +734,7 @@ Lukitaan käyttäjätunnus, koska se on ryhmätunnus, jolla ei kirjauduta sisä�
 ```
 $ sudo usermod –lock juhawsgi
 ```
-Korjataan käyttäjäryhmä kun luodaan tiedostoja seuraavasti mono -> juhawsgi, hakemistossa
-
-/home/mono/public_wsgi
+Korjataan käyttäjäryhmä kun luodaan tiedostoja hakemistossa /home/juhawsgi/public_wsgi
 
 Tehdään tila, joka kopioi testiohjelmat (wsgi ja python) oikeaan hakemistoon.
 
