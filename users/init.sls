@@ -7,7 +7,13 @@ user_mono:
   user.present:
     - name: mono
     - fullname: Juha Immonen test user
-    - password: salainen
+    - password: $1$NjChq9zQ$sR6VAUrpJ4AjAoJvoEhvC/
+
+/home/mono/public_html:
+  file.directory:
+    - user: mono
+    - group: mono
+    - mode: 711
 
 /home/juhawsgi:
   file.directory:
