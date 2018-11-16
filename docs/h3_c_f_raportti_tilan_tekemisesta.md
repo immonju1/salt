@@ -744,6 +744,407 @@ Sen jälkeen Flask-ohjelman tekeminen, projektihakemiston tekeminen ja lopulline
 
 Tämän jälkeen puhtaalla Salt tilalla tehtävä asennus on valmis, sitä voidaan lähteä parantamaan Pilareilla ja muoteilla.
 
+# Vagrant asennus
+
+Jatkettu 15.11.2017
+
+Asennetaan välissä vagrant, jotta voidaan testata paremmin asentamista puhtaalle koneelle.
+
+    $ sudo apt-get install -y vagrant virtualbox
+    $ mkdir vag
+    $ vagrant init bento/ubuntu-16.04
+    $ vagrant up
+
+Virheilmoitus
+```
+There was an error while executing `VBoxManage`, a CLI used by Vagrant
+for controlling VirtualBox. The command and stderr is shown below.
+
+Command: ["startvm", "adf42730-315c-4941-8fc2-4f26e44f2b49", "--type", "headless"]
+
+Stderr: VBoxManage: error: VT-x is disabled in the BIOS for all CPU modes (VERR_VMX_MSR_ALL_VMX_DISABLED)
+VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole
+```
+Korjattu VT-x asetus, jonka jälkeen 
+
+    $ vagrant up
+    $ vagrant up
+    $ vagrant ssh
+
+Siirrytään vagrantille
+
+    vagrant$ sudo apt-get update
+    vagrant$ sudo apt-get install -y salt-minion
+
+    vagrant$ echo -e "master: 192.168.10.52\nid: slave2" | sudo tee /etc/salt/minion
+
+    vagrant$ sudo systemctl restart salt-minion
+
+    master$ sudo salt-key -A
+
+Minionin avain on ollut aiemmin toisella koneella.
+
+Pitää poistaa aiemmalla vagrant minionilla ollut avain.
+```
+master$ sudo salt-key -L
+master$ sudo salt-key -d slave2
+The following keys are going to be deleted:
+Accepted Keys:
+slave2
+Denied Keys:
+slave2
+Proceed? [N/y] y
+Key for minion slave2 deleted.
+Key for minion slave2 deleted.
+```
+
+```
+vagrant$ sudo systemctl restart salt-minion
+
+master$ sudo salt-key -A
+The following keys are going to be accepted:
+Unaccepted Keys:
+slave2
+Proceed? [n/Y] y
+Key for minion slave2 accepted.
+```
+# Ensimmäinen testi puhtaalle koneelle
+
+Testi on tehty HH labran koneella, Ubuntu 18.04 livetikulta. 
+
+Asensin Salt Masterin ja Minionin samalle koneelle.
+
+Hain tilan git:stä komennolla
+   
+    $ cd /srvs
+    $ sudo git clone https://github.com/immonju1/salt.git
+    $ cd salt
+
+Ajettu tila
+
+    $ sudo salt '*' state.highstate
+
+Lopputulos oli se, että tilan ei asentunut oikein, koska Apache2 asennus puuttui tilasta.
+
+Olen testannut tilaa vain omalla koneella, jossa oli jo valmiina Apache2. Tämän takia virhe ei tullut esille aiemmin.
+
+lisätty apache tilaan Apache2 asennus
+
+```
+apache2:
+  pkg.installed:
+    - pkgs:
+      - apache2
+      - libapache2-mod-wsgi-py3
+```
+Tämän jälkeen tila asentui ok tyhjälle koneelle.
+
+# Jatketaan oman miniprojektin tekemistä
+
+Tässä vaiheessa on menossa mod_wsgi ohjelman ajaminen. ts. tavoitteena on saada tila siihen pisteeseen, että voidaan ajaa selaimessa Python wsgi-ohjelma.
+
+Käyttäjille pitää määritellä komentotulkiksi /bin/bash
+
+Lisätty users/init.sls seuraavat rivit 
+
+```
+shell: /bin/bash
+```
+
+Luotudaan index.html tiedosto mono käyttäjän public_html hakemistoon
+
+```
+/home/mono/public_html/index.html:
+  file.managed:
+    - source: salt://users/index.html
+```
+
+Muutetan top.sls, koska haluan muutokset puhtaalle Vagrant minionille
+```
+base:
+  '*':
+    - hello
+  'slave2':
+    - flask
+    - apache
+    - users
+    - groups
+```
+
+## Testaus
+    
+    sudo salt '*' state.highstate
+
+```
+vagrant@vagrant:~$ curl juha.example.com
+Tama on Mono kotihakemisto
+```
+
+### Korjattavaa vielä löytyy.
+
+Oikeudet pitää saada kuntoon /home/mono/public_html, index.html jäi rootille
+
+```
+-rw-r--r-- 1 root root   27 Nov 15 09:33 index.html
+```
+
+Muutetaan users/init.sls
+```
+/home/mono/public_html/index.html:
+  file.managed:
+    - source: salt://users/index.html
+    - user: mono
+    - group: mono
+    - mode: 711
+```
+
+Uusille tiedostoille ei tule oikeaa ryhmää tällä hetkellä hakemistoon /home/juhawsgi/public_wsgi
+
+Tämän voi korjata komennolla chmod g+s /home/juhawsgi/public_wsgi
+
+Muutetaan
+```
+/home/mono/public_html/index.html:
+  file.managed:
+    - source: salt://users/index.html
+    - user: mono
+    - group: mono
+    - mode: 711
+```
+
+## Testaus uudestaan
+
+    $ sudo salt '*' state.highstate
+
+Toimii
+```
+mono@vagrant:~/public_html$ ls -la
+total 12
+drwx--x--x 2 mono mono 4096 Nov 15 09:48 .
+drwxr-xr-x 4 mono mono 4096 Nov 15 09:42 ..
+-rwx--x--x 1 mono mono   27 Nov 15 09:33 index.html
+```
+
+Muutetaan /users/init.sls muotoon, jotta saadaan s-flag päälle.
+
+```
+/home/juhawsgi/public_wsgi:
+  file.directory:
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 4771
+```
+
+## Lopetetaan työskentely 
+```
+$ vagrant destroy
+    default: Are you sure you want to destroy the 'default' VM? [y/N] y
+==> default: Forcing shutdown of VM...
+==> default: Destroying VM and associated drives...
+```
+
+# Viimeistellään mod_wsgi vaihe
+
+
+Testaus, joka kesken:
+ 
+Edellisessä vaiheessa komento mode 4711 users-tilassa, sen testaaminen. Jotta luotavien tiedostojen ryhmä tulee oikein.
+
+Käynnistetään uusi vagrant ja jatketaan testausta.
+
+```
+$ vagrant up
+$ vagrant ssh
+$ sudo apt-get update
+$ sudo apt-get install -y salt-minion
+```
+
+Tehdään samat askelteet kuin alussa. Varattu slave2 avain pitää poistaa masterilta.
+
+Lisätään users-tilaan Python WSGI-koodin siirtäminen oikeaan hakemistoon.
+
+Lisätään /users/init.sls
+
+```
+/home/juhawsgi/public_wsgi/juha.wsgi:
+  file.managed:
+    - source: salt://users/juha.wsgi
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 771
+```
+
+Ajettava koodi juha.wsgi
+
+```
+juha.wsgi
+def application(env, startResponse):
+        startResponse("200 OK", [("Content-type", "text/plain")])
+        return [b"Hello World from Python 3 WSGI\n"]
+```
+
+## Testaus
+
+    sudo salt '*' state.highstate
+
+Testataan
+
+Testit
+
+- Muodostuuko ryhmät ok tiedostoille hakemistossa 
+/home/juhawsgi/public_wsgi
+
+- Voiko ohjelma ajaa selaimessa
+juhawsgi.example.com
+
+```
+vagrant@vagrant:~$ curl juhawsgi.example.com
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>500 Internal Server Error</title>
+</head><body>
+<h1>Internal Server Error</h1>
+<p>The server encountered an internal error or
+misconfiguration and was unable to complete
+your request.</p>
+<p>Please contact the server administrator at 
+ [no address given] to inform them of the time this error occurred,
+ and the actions you performed just before this error.</p>
+<p>More information about this error may be available
+in the server error log.</p>
+<hr>
+<address>Apache/2.4.18 (Ubuntu) Server at juhawsgi.example.com Port 80</address>
+</body></html>
+```
+
+Apache error lokissa:
+
+```
+[Thu Nov 15 11:43:24.025169 2018] [wsgi:error] [pid 31622:tid 140183026525952] (13)Permission 
+denied: [client 127.0.0.1:56304] mod_wsgi (pid=31622, process='', application='juhawsgi.exampl
+e.com|'): Call to fopen() failed for '/home/juhawsgi/public_wsgi/juha.wsgi'.
+```
+
+Myöskään juha.example.com ei toimi, eli ei toimi myöskään web-sivut käyttäjien kotihakemistosta.
+```
+vagrant@vagrant:~$ curl juha.example.com
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>403 Forbidden</title>
+</head><body>
+<h1>Forbidden</h1>
+<p>You don't have permission to access /index.html
+on this server.<br />
+</p>
+<hr>
+<address>Apache/2.4.18 (Ubuntu) Server at juha.example.com Port 80</address>
+</body></html>
+```
+
+## Selvitetty hakemistojen ja tiedostojen oikeuksia ja muutettu ne oikeiksi
+
+Korjattu users/init.sls tila on nyt
+
+```
+juha@juha-HP:/srv/salt/users$ cat init.sls 
+user_juhawsgi:
+  user.present:
+    - name: juhawsgi
+    - shell: /bin/bash
+    - fullname: Juha Immonen project user
+
+user_mono:
+  user.present:
+    - name: mono
+    - shell: /bin/bash
+    - fullname: Juha Immonen test user
+    - password: hash
+
+/home/mono/public_html:
+  file.directory:
+    - user: mono
+    - group: mono
+    - mode: 755 # muutettu
+
+/home/mono/public_html/index.html:
+  file.managed:
+    - source: salt://users/index.html
+    - user: mono
+    - group: mono
+    - mode: 755 # muutettu
+
+/home/juhawsgi:
+  file.directory:
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 711
+
+/home/juhawsgi/public_wsgi:
+  file.directory:
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 771
+
+/home/juhawsgi/public_wsgi/juha.wsgi:
+  file.managed:
+    - source: salt://users/juha.wsgi
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764 # muutettu
+
+# chmod g+s
+run_s_right:
+  cmd.run:
+    - name: chmod u=rwx,g=srwx,o=x /home/juhawsgi/public_wsgi
+```
+
+## Testaaan uudestaan vagrant monionilla
+
+    $ sudo salt '*' state.highstate
+
+### Kotihakemistoista web-sivu toimii
+
+```
+vagrant@vagrant:~$ curl juha.example.com
+Tama on Mono kotihakemisto
+```
+
+### wsgi-ohjelma toimii
+```
+vagrant@vagrant:~$ 
+vagrant@vagrant:~$ curl juhawsgi.example.com
+Hello World from Python 3 WSGI
+```
+
+### tiedostollle oikea ryhmä hakemistossa /public_wsgi
+```
+nano kor.txt
+-rw-rw-r-- 1 mono     juhawsgi    6 Nov 15 13:11 kor.txt
+```
+
+Oikea ryhmä ja oikeudet tulivat tiedostolle, joka luotiin hakemistoon.
+
+Tässä vaiheessa commit ja push githubiin.
+
+# Seuraavat vaiheet
+
+Jatketaan näillä
+
+Tietokanta käyttöön
+
+- PostgreSQL
+- Kantatunnus
+
+Flask ohjelma
+
+- Flask ohjelma, templatet
+- Projektille hakemistorakenne
+- Virtual Name Based host uudelleen konfigurointi Flask ohjelmaa varten
+- Flask ohjelman vienti oikeisiin hakemistoihin
+
+# Mahdollisia parannuksia myöhemmin
+
+Python koodi haetaan aina versionhallinnasta.
 
 
 

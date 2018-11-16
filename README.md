@@ -1,11 +1,12 @@
-# Pieniä kokeluita Saltilla
-Tämä on harjoittelua palvelintenhallinta-kurssille. Samalla tämä on kurssin harjoitus 3 vastaus.
+# Python Flask ympäristön asennus palvelimille Saltilla
+Tämä on miniprojekti palvelintenhallintakurssille.
 
 Tavoitteena saada lopulta flask-ympäristö asennettua palvelimelle.
 
-Muut tehtävän vastaukset https://github.com/immonju1/salt/tree/master/docs
+Tehtävän dokumentaatio https://github.com/immonju1/salt/tree/master/docs
 
 ## Käyttäjätarina
+
 Sovelluskehittäjänä haluan, että minulla on tuotantoa vastaava Python Flask ympäristö, jotta voin testata sovellustani oikeassa ympäristössä.
 
 ## Hyväksyntäkriteerit:
