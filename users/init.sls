@@ -3,6 +3,7 @@ user_juhawsgi:
     - name: juhawsgi
     - shell: /bin/bash
     - fullname: Juha Immonen project user
+    - password: $1$NjChq9zQ$sR6VAUrpJ4AjAoJvoEhvC/
 
 user_mono:
   user.present:
@@ -39,6 +40,20 @@ user_mono:
 /home/juhawsgi/public_wsgi/juha.wsgi:
   file.managed:
     - source: salt://users/juha.wsgi
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+
+/home/juhawsgi/public_wsgi/moi.wsgi:
+  file.managed:
+    - source: salt://users/moi.wsgi
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+
+/home/juhawsgi/public_wsgi/moi.py:
+  file.managed:
+    - source: salt://users/moi.py
     - user: juhawsgi
     - group: juhawsgi
     - mode: 764
