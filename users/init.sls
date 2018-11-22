@@ -62,3 +62,25 @@ run_s_right:
   cmd.run:
     - name: chmod u=rwx,g=srwx,o=x /home/juhawsgi/public_wsgi
 
+/home/juhawsgi/public_wsgi/templates:
+  file.directory:
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 771
+
+/home/juhawsgi/public_wsgi/templates/base.html:
+  file.managed:
+    - source: salt://users/templates/base.html
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+
+/home/juhawsgi/public_wsgi/templates/horses.html:
+  file.managed:
+    - source: salt://users/templates/horses.html
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+
+
+
