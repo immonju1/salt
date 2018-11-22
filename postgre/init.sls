@@ -1,4 +1,10 @@
-postgre_juhawsi:
-  postgres_database.present:
-    - name: juhawsgi  
-    - db_user: juhawsgi
+postgresql:
+  pkg.installed
+
+juhawsgi_user:
+  postgres_user.present:
+    - name: juhawsgi
+
+juhawsgi:
+    postgres_database.present:
+    - owner: juhawsgi

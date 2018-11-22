@@ -4,6 +4,6 @@
 
 apt-get update
 apt-get install salt-minion -y 
-echo -e 'master: 10.0.0.2\nid: vagminion'|sudo tee /etc/salt/minion
+echo -e 'master: 10.0.2.2\nid: vagminion'|sudo tee /etc/salt/minion
 systemctl restart salt-minion
  

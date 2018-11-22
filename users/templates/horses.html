@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{%block title%} Horses {%endblock title%}
+
+{% block contents %}
+ <h1>Horses</h1>
+ {% for horse in horses %}
+ <p>{{ horse.name }}</p>
+ {% endfor %}
+{% endblock contents %}

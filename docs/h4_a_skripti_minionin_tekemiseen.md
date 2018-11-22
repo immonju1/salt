@@ -32,9 +32,9 @@ $ vagrant ssh
 ```
 
 ```
-vagrant@vagrant:~$ wget https://raw.githubusercontent.com/immonju1/salt/master/minionsetup.sh
-vagrant@vagrant:~$ chod g+x minionsetup.sh
-vagrant@vagrant:~$ sudo ./minionsetup.sh
+wget https://raw.githubusercontent.com/immonju1/salt/master/minionsetup.sh
+chmod g+x minionsetup.sh
+sudo ./minionsetup.sh
 ```
 
 
