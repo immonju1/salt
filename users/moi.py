@@ -27,7 +27,7 @@ def initDBforFlask():
 
 @app.route("/")
 def hello():
-	return "See you at JuhaImmonen.com! <a href='/horses'>List horses</a>\n"
+	return "Hello {{ user }}. See you at JuhaImmonen.com! <a href='/horses'>List horses</a>\n"
 
 @app.route("/horses")
 def horses():

@@ -1,10 +1,12 @@
+{% set wsgi_user = pillar.get('wsgi_user', 'juhawsgi') %}
+
 postgresql:
   pkg.installed
 
 juhawsgi_user:
   postgres_user.present:
-    - name: juhawsgi
+    - name: {{ wsgi_user }}
 
 juhawsgi:
     postgres_database.present:
-    - owner: juhawsgi
+    - owner: {{ wsgi_user }}
