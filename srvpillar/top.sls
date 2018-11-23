@@ -1,3 +1,4 @@
 base:
   'minion':
     - minion
+    - server

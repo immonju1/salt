@@ -4,6 +4,7 @@
 {% set dev_group = pillar.get('dev_group', 'mono') %}
 {% set wsgi_file = pillar.get('wsgi_file', 'moi.wsgi') %}
 {% set flask_file = pillar.get('flask_file', 'moi.py') %}
+{% set pw = pillar.get('pw') %}
 
 
 user_{{ wsgi_user }}:
@@ -11,14 +12,13 @@ user_{{ wsgi_user }}:
     - name: {{ wsgi_user }}
     - shell: /bin/bash
     - fullname: Juha Immonen project user
-    - password: 
 
 user_{{ dev_user }}:
   user.present:
     - name: {{ dev_user }}
     - shell: /bin/bash
     - fullname: Juha Immonen test user
-    - password: 
+    - password: {{ pw }}
 
 /home/{{ dev_user }}/public_html:
   file.directory:
@@ -64,6 +64,7 @@ user_{{ dev_user }}:
     - template: jinja
     - context:
       user: {{ wsgi_user }}
+
 run_s_right:
   cmd.run:
     - name: chmod u=rwx,g=srwx,o=x /home/{{ wsgi_user }}/public_wsgi

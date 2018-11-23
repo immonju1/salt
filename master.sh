@@ -1,3 +1,4 @@
+#!/bin/bash
 # setup salt master
 # wget https://raw.githubusercontent.com/immonju1/salt/master/master.sh
 # chmod g+x master.sh
@@ -16,6 +17,19 @@ echo "Cloning Git..."
 cd /srv
 
 git clone https://github.com/immonju1/salt.git
+
+# Write details into pillar
+echo -n "pw: " > /srv/salt/srvsalt/server.sls
+
+# Collect developer user details
+echo
+echo "Collecting password..."
+echo "Enter password for development user:"
+stty -echo
+read pass
+stty echo
+
+openssl passwd -1 $pass  >> server.sls
 
 mkdir /srv/pillar
 echo "Copying pillars..."
