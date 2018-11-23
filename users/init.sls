@@ -11,14 +11,14 @@ user_{{ wsgi_user }}:
     - name: {{ wsgi_user }}
     - shell: /bin/bash
     - fullname: Juha Immonen project user
-    - password: $1$NjChq9zQ$sR6VAUrpJ4AjAoJvoEhvC/
+    - password: 
 
 user_{{ dev_user }}:
   user.present:
     - name: {{ dev_user }}
     - shell: /bin/bash
     - fullname: Juha Immonen test user
-    - password: $1$NjChq9zQ$sR6VAUrpJ4AjAoJvoEhvC/
+    - password: 
 
 /home/{{ dev_user }}/public_html:
   file.directory:
