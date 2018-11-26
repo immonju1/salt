@@ -31,7 +31,7 @@ mkdir /srv/pillar
 fi
 
 # Write details into pillar
-echo -n "pw: " > /srv/salt/srvsalt/server.sls
+echo -n "pw: " > /srv/salt/pillar/server.sls
 
 openssl passwd -1 $pass  >> /srv/salt/pillar/server.sls
 
