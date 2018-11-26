@@ -18,9 +18,6 @@ cd /srv
 
 git clone https://github.com/immonju1/salt.git
 
-# Write details into pillar
-echo -n "pw: " > /srv/salt/srvsalt/server.sls
-
 # Collect developer user details
 echo
 echo "Collecting password..."
@@ -32,6 +29,9 @@ stty echo
 if [ ! -d "/srv/pillar" ]; then
 mkdir /srv/pillar
 fi
+
+# Write details into pillar
+echo -n "pw: " > /srv/salt/srvsalt/server.sls
 
 openssl passwd -1 $pass  >> /srv/salt/pillar/server.sls
 
