@@ -29,9 +29,12 @@ stty -echo
 read pass
 stty echo
 
-openssl passwd -1 $pass  >> server.sls
-
+if [ ! -d "/srv/pillar" ]; then
 mkdir /srv/pillar
+fi
+
+openssl passwd -1 $pass  >> /srv/salt/pillar/server.sls
+
 echo "Copying pillars..."
 cp -R /srv/salt/srvpillar/* /srv/pillar
 
