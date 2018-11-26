@@ -1126,21 +1126,265 @@ Oikea ryhmä ja oikeudet tulivat tiedostolle, joka luotiin hakemistoon.
 
 Tässä vaiheessa commit ja push githubiin.
 
-# Seuraavat vaiheet
 
-Jatketaan näillä
+# Jatketaan tilan tekemistä
 
-Tietokanta käyttöön
+## Asennetaan seuraavaksi Pythonin lisäpaketit tietokantayhteyttä varten
 
-- PostgreSQL
-- Kantatunnus
+Lisätään python3-flask-sqlalchemy ja python3-psycopg2
 
-Flask ohjelma
+```
+flask:
+  pkg.installed:
+    - pkgs:
+      - python3
+      - ipython3
+      - python3-flask
+      - python3-flask-sqlalchemy
+      - python3-psycopg2
+      - curl
+```
 
-- Flask ohjelma, templatet
-- Projektille hakemistorakenne
-- Virtual Name Based host uudelleen konfigurointi Flask ohjelmaa varten
-- Flask ohjelman vienti oikeisiin hakemistoihin
+## Tehdään Flask ohjelma
+
+Python ohjelma
+
+```
+moi.py
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+        return 'Flask koodia päivityksen jälkeen at juhawsgi.example.com!\n\n'
+if __name__ == '__main__':
+        app.run(host='localhost', port=80)
+
+```
+
+WSGI-ohjelma, jossa tarkistetaan myös, että käytettävä Python versio on oikea.
+
+```
+moi.wsgi
+
+import sys
+
+#require python
+if sys.version_info[0]<3:
+        raise Exception("Python3 required! Current (wrong) version: '%s'" % sys.version_info)
+
+sys.path.insert(0, '/home/juhawsgi/public_wsgi/')
+from moi import app as application
+```
+
+## Koodien siirto oikeisiin paikkoihin
+
+Muutetaan /srv/salt/init.sls, ja lisätään sinne
+
+```
+/home/juhawsgi/public_wsgi/moi.wsgi:
+  file.managed:
+    - source: salt://users/moi.wsgi
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+
+/home/juhawsgi/public_wsgi/moi.py:
+  file.managed:
+    - source: salt://users/moi.py
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+```
+
+
+## Apache konffin muutos
+
+Muutetaan virtual Name Based asetus Flask-ohjelmalle sopivaksi.
+
+```WSGIScriptReloading On``` asetuksen ansiosta ei tarvita sudo oikeuksia Apachen restarttiin, jos Flask-ohjelmaa on muuetttu.
+
+```
+<VirtualHost *:80>
+    ServerName juhawsgi.example.com
+
+    WSGIScriptAlias / /home/juhawsgi/public_wsgi/moi.wsgi
+
+    WSGIDaemonProcess moi user=juhawsgi group=juhawsgi threads=5
+
+    <Directory /home/juhawsgi/public_wsgi/>
+       WSGIProcessGroup moi
+       WSGIApplicationGroup %{GLOBAL}
+       WSGIScriptReloading On
+
+        Require all granted
+    </Directory>
+
+</VirtualHost>
+```
+
+## top.sls muutos
+
+Järjestys, jotta apache tila asentuu oikein
+
+```
+top.sls 
+base:
+  '*':
+    - hello
+    - flask
+    - users
+    - groups
+    - apache
+```
+
+## Testaus
+
+```
+sudo salt '*' state.highstate
+```
+
+Ajetaan Vagrant konella ohjelma.
+
+```
+vagrant@vagrant:~$ curl juhawsgi.example.com
+Flask koodia päivityksen jälkeen at juhawsgi.example.com!
+```
+
+## postgreSQl asennus
+
+Uusi hakekmisto postgre-tilalle.
+
+```
+$ sudo mkdir /srv/salt/postgre
+```
+
+Tehdään uusi tila PostgreSQL asennusta varten.
+
+```
+postgresql:
+  pkg.installed
+
+juhawsgi_user:
+  postgres_user.present:
+    - name: juhawsgi
+
+juhawsgi:
+    postgres_database.present:
+    - owner: juhawsgi
+```
+
+## Flask koodi tietokannan käyttöön
+
+### Python Flask ohjelma, joka käyttää tietokantaa
+
+```
+from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+app = Flask(__name__)
+db = SQLAlchemy(app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///juhawsgi'
+app.config['SECRET_KEY'] = 'b\xc2\xacT\xe1\x83A\xc6\xa2G\x9fr\x1d\xca\xea\xf1o'
+
+def sql(rawSql, sqlVars={}):
+        assert type(rawSql)==str
+        assert type(sqlVars)==dict
+        res=db.session.execute(rawSql, sqlVars)
+        db.session.commit()
+        return res
+
+@app.before_first_request
+def initDBforFlask():
+        sql("CREATE TABLE IF NOT EXISTS horses (id SERIAL PRIMARY KEY, name VARCHAR(160) UNIQUE);")
+        sql("INSERT INTO horses(name) VALUES ('Tanhupallo') ON CONFLICT (name) DO NOTHING;")
+        sql("INSERT INTO horses(name) VALUES ('Kira') ON CONFLICT (name) DO NOTHING;")
+        sql("INSERT INTO horses(name) VALUES ('Juha') ON CONFLICT (name) DO NOTHING;")
+        sql("INSERT INTO horses(name) VALUES ('Luumu') ON CONFLICT (name) DO NOTHING;")
+
+@app.route("/")
+def hello():
+        return "See you at JuhaImmonen.com! <a href='/horses'>List horses</a>\n"
+
+@app.route("/horses")
+def horses():
+        horses=sql("SELECT * FROM horses;")
+        return render_template("horses.html", horses=horses)
+
+if __name__ == "__main__":
+        from flask_sqlalchemy import get_debug_queries
+        app.run(debug=True)
+```
+
+
+### Templates
+
+Tiedostojen vienti oikeaan paikkaan
+```
+/home/juhawsgi/public_wsgi/templates:
+  file.directory:
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 771
+```
+```
+/home/juhawsgi/public_wsgi/templates/base.html:
+  file.managed:
+    - source: salt://users/templates/base.html
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+```
+```
+/home/juhawsgi/public_wsgi/templates/horses.html:
+  file.managed:
+    - source: salt://users/templates/horses.html
+    - user: juhawsgi
+    - group: juhawsgi
+    - mode: 764
+```
+
+## Lopullinen top.sls
+
+Lisätty postgre-tila.
+
+```
+base:
+  '*':
+    - hello
+    - flask
+    - users
+    - groups
+    - apache
+    - postgre
+
+```
+
+## Testaus
+
+Mennään selaimella osoitteeseen juhawsgi.example.com:8080 (asennus on tehty vagrant virtuaalikoneelle) tai curl juhawsgi.example.com komentoriviltä.
+
+Tulostuu
+
+
+# Jinja muottien ja Pillar tiedon lisääminen
+
+Tiloja muutin vielä niin, että seuraavat tiedot haetaan pillareista.
+
+```
+/srv/pillar/minion.sls
+
+wsgi_user: juhawsgi
+dev_user: mono
+wsgi_group: juhawsgi
+dev_group: mono
+flask_file: moi.py
+wsgi_file: moi.wsgi
+```
+En raportoi enää näitä muutoksia, koska muutoksia tuli aika moneen paikkaan.
+
+Lisäksi tein asennusohjelmat, joilla minionin ja masterin voi asentaa helposti. Masterin asennuksessa pyydetään lisäksi salasana, jota käytetään minionin asennuksen yhteydessä (Linux käyttäjätunnuksen salasana).
+
 
 # Mahdollisia parannuksia myöhemmin
 

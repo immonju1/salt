@@ -7,7 +7,7 @@ Tehtävän dokumentaatio https://github.com/immonju1/salt/tree/master/docs
 
 ## Käyttäjätarina
 
-Sovelluskehittäjänä haluan, että minulla on tuotantoa vastaava Python Flask ympäristö, jotta voin testata sovellustani oikeassa ympäristössä.
+Koodaajana haluan, että minulla on tuotantoa vastaava Python Flask ympäristö, jotta voin testata sovellustani oikeassa ympäristössä.
 
 ## Hyväksyntäkriteerit:
 
@@ -50,6 +50,30 @@ Salt asentaa seuraavat asiat
 ### Testaus
 Sovellus ja asennus voidaan testata selaimella. Jos asennus on samalle koneelle niin voidaan testata URL juhawsgi.example.com
 
-## Eteneminen
-Tehdään ja testataan pienissä paloissa
+## Tilan asentaminen
+
+### Master
+
+```
+wget https://raw.githubusercontent.com/immonju1/salt/master/master.sh
+chmod g+x master.sh
+sudo ./master.sh
+```
+
+Ohjelma kysyy salasanan, joka annetaan Linux-käyttäjälle.
+
+### Minion
+```
+wget https://raw.githubusercontent.com/immonju1/salt/master/minionsetup.sh
+chmod g+x minionsetup.sh
+sudo ./minionsetup.sh
+```
+Ohjelma kysyy Masterin IP-osoitteen, ja id:n joka annetaan Minionille.
+
+Tämän jälkeen Masterilla
+
+```
+sudo salt-key -A
+```
+
 
