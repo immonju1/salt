@@ -42,24 +42,52 @@ user_{{ dev_user }}:
     - group: {{ wsgi_group }}
     - mode: 711
 
-#/home/{{ wsgi_user }}/public_wsgi:
-#  file.directory:
-#    - user: {{ wsgi_user }}
-#    - group: {{ wsgi_group }}
-#    - mode: 771
-
 /home/{{ wsgi_user }}/public_wsgi:
-  file.recurse:
-    - source: salt://users/public_wsgi
-    - include_empty: True
+  file.directory:
     - user: {{ wsgi_user }}
     - group: {{ wsgi_group }}
-    - file_mode: 764
-    - dir_mode: 711
+    - mode: 771
+
+/home/{{ wsgi_user }}/public_wsgi/{{ wsgi_file }}:
+  file.managed:
+    - source: salt://users/{{ wsgi_file }}
+    - user: {{ wsgi_user }}
+    - group: {{ wsgi_group }}
+    - mode: 764
+
+/home/{{ wsgi_user }}/public_wsgi/{{ flask_file }}:
+  file.managed:
+    - source: salt://users/{{ flask_file }}
+    - user: {{ wsgi_user }}
+    - group: {{ wsgi_group }}
+    - mode: 764
+    - template: jinja
+    - context:
+      user: {{ wsgi_user }}
 
 run_s_right:
   cmd.run:
     - name: chmod u=rwx,g=srwx,o=x /home/{{ wsgi_user }}/public_wsgi
+
+/home/{{ wsgi_user }}/public_wsgi/templates:
+  file.directory:
+    - user: {{ wsgi_user }}
+    - group: {{ wsgi_group }}
+    - mode: 771
+
+/home/{{ wsgi_user }}/public_wsgi/templates/base.html:
+  file.managed:
+    - source: salt://users/templates/base.html
+    - user: {{ wsgi_user }}
+    - group: {{ wsgi_group }}
+    - mode: 764
+
+/home/{{ wsgi_user }}/public_wsgi/templates/horses.html:
+  file.managed:
+    - source: salt://users/templates/horses.html
+    - user: {{ wsgi_user }}
+    - group: {{ wsgi_group }}
+    - mode: 764
 
 
 

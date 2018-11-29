@@ -18,6 +18,12 @@ cd /srv
 
 git clone https://github.com/immonju1/salt.git
 
+cd /srv/salt/users/
+
+git clone https://github.com/immonju1/flask-crud.git
+
+mv flask-crud public_wsgi
+
 # Collect developer user details
 echo
 echo "Collecting password..."
@@ -31,9 +37,9 @@ mkdir /srv/pillar
 fi
 
 # Write details into pillar
-echo -n "pw: " > /srv/salt/pillar/server.sls
+echo -n "pw: " > /srv/salt/srvpillar/server.sls
 
-openssl passwd -1 $pass  >> /srv/salt/pillar/server.sls
+openssl passwd -1 $pass  >> /srv/salt/srvpillar/server.sls
 
 echo "Copying pillars..."
 cp -R /srv/salt/srvpillar/* /srv/pillar
