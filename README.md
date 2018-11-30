@@ -1,4 +1,5 @@
 # Python Flask ympäristön asennus palvelimille Saltilla
+
 Tämä on miniprojekti palvelintenhallintakurssille.
 
 Tavoitteena saada lopulta flask-ympäristö asennettua palvelimelle.
@@ -12,6 +13,12 @@ Koodaajana haluan, että minulla on tuotantoa vastaava Python Flask ympäristö,
 ## Hyväksyntäkriteerit:
 
 Salt asentaa seuraavat asiat
+
+### Ympäristö
+
+Salt tila toimii Ubuntu 18.04 alustalla. Ubuntu 16.04 ei toimi, johtuen siitä että tarvtaan Python3. 
+
+Kaikkia tarvittavia Python Flask kirjastoja ei ole saatavilla Ubuntu 16.04 (flask-login).
 
 ### Käyttäjät ja hakemistot
 
@@ -35,11 +42,13 @@ Salt asentaa seuraavat asiat
 
 - Python
 - Flask
+- Tarvittavat modulit Flask ohjelman ajamiseen, kuten python3-flask-sqlalchemy
 - Curl testaamista varten
 
 ### Tietokanta
   
 - PostgreSQL
+- Databasen luonti
 - Kantatunnuksen luonti
 
 ### Ohjelmien asennus
@@ -47,8 +56,15 @@ Salt asentaa seuraavat asiat
 - Flask testisovellus, joka käyttää tietokantaa
 - Sovellusten siirto oikeisiin projektihakemistoihin
 
-### Testaus
+## Testaus
+
 Sovellus ja asennus voidaan testata selaimella. Jos asennus on samalle koneelle niin voidaan testata URL juhawsgi.example.com
+
+Jos minion on toiella koneella, pitää muuttaa Apachen Virtual Name Based host konfiguraatoita..
+
+### Testiohjelma
+
+Testisovellus https://github.com/immonju1/flask-crud asennetaan osana tilaa.
 
 ## Tilan asentaminen
 
@@ -74,6 +90,9 @@ Tämän jälkeen Masterilla
 
 ```
 sudo salt-key -A
+```
+```
+sudo salt '*' state.highstate
 ```
 
 
