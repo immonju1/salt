@@ -22,6 +22,8 @@ Eri ympäristöjen konfigurointi, esim. kehitysympäristössä on käytössä Sq
 
 Deploymentin automatisointi, kun on tehty git push githubiin, tapahtuisi automaattisesti deployment tämän tilan avulla.
 
+Deploymentin tekeminen eri alaustoille testi, Pre-Pro, tuotanto, tilalla voisi viedä ohjelman eri ympäristöihin.
+
 ## Hyväksyntäkriteerit:
 
 Salt asentaa seuraavat asiat
