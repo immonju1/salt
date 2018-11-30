@@ -10,6 +10,18 @@ Tehtävän dokumentaatio https://github.com/immonju1/salt/tree/master/docs
 
 Koodaajana haluan, että minulla on tuotantoa vastaava Python Flask ympäristö, jotta voin testata sovellustani oikeassa ympäristössä.
 
+Tätä Salt tilaa voi käyttää kehittäessään Python Flask ohjelmaa. Sovelluksen kehitys tapahtuu kehitysympäristössä. Githubiin viennin jälkeen voi ajaa tämän tilan, jolloin ohjelma asentuu testiympäristöön.
+
+Tila automatisoi ohjelman deploymentin testiympäristöön, tila pitää kuitenkin ajaa itse manuaalisesti sovellukselle tehdyn git push jälkeen.
+
+### Parannettavaa
+
+Riippuvuuksien hallinta, kehitysympäristössä on venv, ja tietyt versiot esim. Python Flask moduuleista. Miten saada samat komponentit samoilla versoinumeroilla Saltin kautta testiympäristöön.
+
+Eri ympäristöjen konfigurointi, esim. kehitysympäristössä on käytössä Sqlite3, mutta testissä PostgreSQL. Ohjelman pitää lukea jostain missä ympärsitössä ollaan.
+
+Deploymentin automatisointi, kun on tehty git push githubiin, tapahtuisi automaattisesti deployment tämän tilan avulla.
+
 ## Hyväksyntäkriteerit:
 
 Salt asentaa seuraavat asiat
