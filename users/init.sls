@@ -44,21 +44,12 @@ user_{{ dev_user }}:
     - group: {{ wsgi_group }}
     - mode: 711
 
-repo_clone:
-  cmd.run:
-    - name: git clone https://github.com/immonju1/flask-crud.git
-    - user: {{ dev_user }}
-    - unless: test -d /home/{{ dev_user }}/flask-crud 
-    - require:
-      - pkg: git 
-
-create_public_wsgi:
-  file:
-    - symlink
-    - name: /srv/salt/users/public_wsgi
-    - target: /home/{{ dev_user }}/flask-crud
-    - force: True
-    - user: {{ dev_user }}
+#repo_clone:
+#  cmd.run:
+#    - name: git clone https://github.com/immonju1/flask-crud.git
+#    - cwd: /srv/salt/users
+#    - require:
+#      - pkg: git 
 
 /home/{{ wsgi_user }}/public_wsgi:
   file.recurse:
